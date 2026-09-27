@@ -1,3 +1,4 @@
+// shell.qml
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -25,41 +26,31 @@ ShellRoot {
 
   // right
   Frame {
+    id: rightFrame
     anchorLeft: false
     thickness: 5
+  }
+  SidePanel {
+    id: volumeControl
+    triggerHovered: rightFrame.hovered
 
-    PanelWindow {
-      anchors.right: true
+    curveDepth: 15
+    cornerRadius: 25
 
-      exclusiveZone: 0
-      aboveWindows: true
+    ColumnLayout {
+      anchors.fill: parent
+      spacing: 12
 
-      implicitWidth: 50
-      implicitHeight: 350
-
-      color: "transparent"
-
-      Rectangle {
-        anchors.fill: parent
-        color: "black"
-        radius: 10
-
-        ColumnLayout {
-          anchors.fill: parent
-          spacing: 12
-
-          Item {Layout.fillHeight: true}
-          Slider { 
-            icon: "󰕾" 
-            Layout.alignment: Qt.AlignHCenter
-          }
-          Slider { 
-            icon: "󰃝" 
-            Layout.alignment: Qt.AlignHCenter
-          }
-          Item {Layout.fillHeight: true}
-        }
+      Item {Layout.fillHeight: true}
+      Slider { 
+        icon: "󰕾" 
+        Layout.alignment: Qt.AlignHCenter
       }
+      Slider { 
+        icon: "󰃝" 
+        Layout.alignment: Qt.AlignHCenter
+      }
+      Item {Layout.fillHeight: true}
     }
   }
 
