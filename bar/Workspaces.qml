@@ -32,7 +32,7 @@ RowLayout {
       Behavior on color { ColorAnimation { duration: 150 } }
 
       MouseArea {
-        cursorShape: containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+        cursorShape: Qt.PointingHandCursor
 
         anchors.fill: parent
         onClicked: Hyprland.dispatch("hl.dsp.focus({workspace=" + modelData + "})")
@@ -62,6 +62,8 @@ RowLayout {
 
       MouseArea {
         anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+
         onClicked: Process.execute([
           "hyprctl", "dispatch", "togglespecialworkspace",
           modelData.name.replace("special:", "")

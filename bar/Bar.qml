@@ -1,7 +1,7 @@
-import Quickshell
 import QtQuick
-import Quickshell.Hyprland
+import Quickshell
 import QtQuick.Layouts
+import Quickshell.Hyprland
 
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -10,6 +10,7 @@ import "./right" as Right
 
 PanelWindow {
   id: bar
+  property var modelData
 
   anchors {
     top: true
@@ -23,12 +24,13 @@ PanelWindow {
 
   Item {
     anchors.fill: parent
-    anchors.leftMargin: 8
-    anchors.rightMargin: 8
+    anchors.leftMargin: 14
+    anchors.rightMargin: 14
 
     Workspaces {
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
+      spacing: 8
     }
 
     Clock {
@@ -38,7 +40,7 @@ PanelWindow {
     RowLayout {
       anchors.right: parent.right
       anchors.verticalCenter: parent.verticalCenter
-      spacing: 8
+      spacing: 12
 
       Right.Tray {}
       Right.CpuWidget {}
