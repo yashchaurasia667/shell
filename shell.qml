@@ -6,9 +6,9 @@ import Quickshell
 import "./bar"
 import "./frame"
 import "./components"
+import "./services"
 
 ShellRoot {
-  // Singleton {}
 
   Variants {
     model: Quickshell.screens
@@ -33,6 +33,7 @@ ShellRoot {
   SidePanel {
     id: volumeControl
     triggerHovered: rightFrame.hovered
+    edge: Qt.RightEdge
 
     curveDepth: 15
     cornerRadius: 25
@@ -43,12 +44,21 @@ ShellRoot {
 
       Item {Layout.fillHeight: true}
       Slider { 
-        icon: "󰕾" 
+        icon: AudioService.muted ? "󰖁" : "󰕾" 
         Layout.alignment: Qt.AlignHCenter
+        value: AudioService.volume
+        onMoved: position => {
+          AudioService.setVolume(position)
+        }
       }
+
       Slider { 
         icon: "󰃝" 
         Layout.alignment: Qt.AlignHCenter
+        value: BrightnessService.value
+        onMoved: position => {
+          BrightnessService.setBrightness(position)
+        }
       }
       Item {Layout.fillHeight: true}
     }

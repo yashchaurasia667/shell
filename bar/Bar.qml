@@ -1,3 +1,4 @@
+// bar/Bar.qml
 import QtQuick
 import Quickshell
 import QtQuick.Layouts
@@ -7,6 +8,7 @@ import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 
 import "./right" as Right
+import "../components" 
 
 PanelWindow {
   id: bar
@@ -33,8 +35,20 @@ PanelWindow {
       spacing: 8
     }
 
-    Clock {
+    Item {
+      id: clockWrapper
+      width: clock.width
+      height: parent.height
       anchors.centerIn: parent
+
+      Clock {
+        id: clock
+        anchors.centerIn: parent
+      }
+
+      HoverHandler {
+        id: clockHoverHandler
+      }
     }
 
     RowLayout {
@@ -49,5 +63,31 @@ PanelWindow {
       Right.BatteryWidget {}
     }
   }
-}
 
+  SidePanel {
+    id: topDropdown
+    edge: Qt.TopEdge
+    triggerHovered: clockHoverHandler.hovered
+
+    curveDepth: 20
+    cornerRadius: 25
+
+    panelThickness: 350
+    panelLength: 1000
+
+    ColumnLayout {
+      anchors.fill: parent
+      anchors.topMargin: 40
+      spacing: 15
+
+      Text {
+        text: "Quick Settings & Calendar"
+        color: "white"
+        font.pixelSize: 18
+        Layout.alignment: Qt.AlignHCenter
+      }
+
+      Item { Layout.fillHeight: true }
+    }
+  }
+}

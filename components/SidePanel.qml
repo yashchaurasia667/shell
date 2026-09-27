@@ -6,22 +6,27 @@ import QtQuick.Shapes
 
 PanelWindow {
   id: root
-  anchors.right: true
+
+  property int edge: Qt.RightEdge
+
+  anchors.right: edge === Qt.RightEdge
+  anchors.left: edge === Qt.LeftEdge
+  anchors.top: edge === Qt.TopEdge
+  anchors.bottom: edge === Qt.BottomEdge
 
   exclusiveZone: 0
   aboveWindows: true
 
-  property int panelWidth: 50
-  property int panelHeight: 380
+  property int panelThickness: 50
+  property int panelLength: 380
 
   property int curveDepth: 40 
   property int cornerRadius: 20
 
-  property alias slideAnimation: slideAnim
+  property alias slideAnimation: xAnim
 
   visible: false
   property bool triggerHovered: false
-
   property bool _isHovered: triggerHovered || panelHoverHandler.hovered
 
   on_IsHoveredChanged: {
@@ -35,12 +40,13 @@ PanelWindow {
 
   Timer {
     id: hideTimer
-    interval: slideAnim.duration 
+    interval: xAnim.duration 
     onTriggered: root.visible = false
   }
 
-  implicitWidth: panelWidth
-  implicitHeight: panelHeight
+  property bool isHorizontal: edge === Qt.TopEdge || edge === Qt.BottomEdge
+  implicitWidth: isHorizontal ? panelLength : panelThickness
+  implicitHeight: isHorizontal ? panelThickness : panelLength
 
   color: "transparent"
 
@@ -54,20 +60,48 @@ PanelWindow {
     id: slidingContainer
     width: parent.width
     height: parent.height
+    
+    x: {
+      if (root._isHovered) return 0;
+      if (root.edge === Qt.RightEdge) return root.panelThickness;
+      if (root.edge === Qt.LeftEdge) return -root.panelThickness;
+      return 0;
+    }
 
-    x: root._isHovered ? 0 : root.panelWidth
+    y: {
+      if (root._isHovered) return 0;
+      if (root.edge === Qt.BottomEdge) return root.panelThickness;
+      if (root.edge === Qt.TopEdge) return -root.panelThickness;
+      return 0;
+    }
 
     Behavior on x {
       NumberAnimation {
-        id: slideAnim
-        duration: 150
+        id: xAnim
+        duration: 250
         easing.type: Easing.OutCubic
+      }
+    }
+    
+    Behavior on y {
+      NumberAnimation {
+        duration: xAnim.duration
+        easing.type: xAnim.easing.type
       }
     }
 
     Item {
-      id: backgroundContainer
-      anchors.fill: parent
+      id: shapeWrapper
+      width: root.panelThickness
+      height: root.panelLength
+      anchors.centerIn: parent
+      
+      rotation: {
+        if (root.edge === Qt.TopEdge) return -90
+        if (root.edge === Qt.BottomEdge) return 90
+        if (root.edge === Qt.LeftEdge) return 180
+        return 0
+      }
 
       Shape {
         id: tabShape
@@ -79,62 +113,46 @@ PanelWindow {
           fillColor: "black"
           strokeColor: "transparent"
 
-          startX: root.panelWidth
+          startX: root.panelThickness
           startY: 0
 
-          // top concave thingy
           PathCubic {
-            x: root.cornerRadius
+            x: root.panelThickness - root.cornerRadius
             y: root.cornerRadius
-
-            control1X: root.panelWidth
-            control1Y: 0
-
-            control2X: root.panelWidth
-            control2Y: root.curveDepth
+            control1X: root.panelThickness; control1Y: 0
+            control2X: root.panelThickness; control2Y: root.curveDepth
           }
 
           PathLine { x: root.cornerRadius; y: root.cornerRadius }
 
-          //  top rouned corner
           PathCubic {
-            x: 0
-            y: root.cornerRadius * 2
+            x: 0; y: root.cornerRadius * 2
             control1X: root.cornerRadius * 0.5; control1Y: root.cornerRadius
             control2X: 0; control2Y: root.cornerRadius * 1.5
           }
 
-          // straight down
-          PathLine { x: 0; y: root.panelHeight - (root.cornerRadius * 2) }
+          PathLine { x: 0; y: root.panelLength - (root.cornerRadius * 2) }
 
-          // bottom round corner
           PathCubic {
-            x: root.cornerRadius
-            y: root.panelHeight - root.cornerRadius
-            control1X: 0; control1Y: root.panelHeight - (root.cornerRadius * 1.5)
-            control2X: root.cornerRadius * 0.5; control2Y: root.panelHeight - root.cornerRadius
+            x: root.cornerRadius; y: root.panelLength - root.cornerRadius
+            control1X: 0; control1Y: root.panelLength - (root.cornerRadius * 1.5)
+            control2X: root.cornerRadius * 0.5; control2Y: root.panelLength - root.cornerRadius
           }
 
-          PathLine { x: root.panelWidth - root.cornerRadius; y: root.panelHeight - root.cornerRadius }
+          PathLine { x: root.panelThickness - root.cornerRadius; y: root.panelLength - root.cornerRadius }
 
-          // bottom concave thingy
           PathCubic {
-            x: root.panelWidth
-            y: root.panelHeight
-
-            control1X: root.panelWidth
-            control1Y: root.panelHeight - root.curveDepth
-
-            control2X: root.panelWidth
-            control2Y: root.panelHeight
+            x: root.panelThickness; y: root.panelLength
+            control1X: root.panelThickness; control1Y: root.panelLength - root.curveDepth
+            control2X: root.panelThickness; control2Y: root.panelLength
           }
         }
       }
+    }
 
-      Item {
-        id: contentContainer
-        anchors.fill: parent
-      }
+    Item {
+      id: contentContainer
+      anchors.fill: parent
     }
   }
 }
