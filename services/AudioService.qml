@@ -1,8 +1,8 @@
 // AudioService.qml
 pragma Singleton
 import QtQuick
-import Quickshell.Services.Pipewire
 import Quickshell.Io
+import Quickshell.Services.Pipewire
 
 QtObject {
   id: root
@@ -10,8 +10,10 @@ QtObject {
   property var _sink: Pipewire.defaultAudioSink
   property var _audio: _sink != null ? _sink.audio : null
 
-  property real volume: _audio != null ? _audio.volume : 0.0
-  property bool muted:  _audio != null ? _audio.muted  : false
+  readonly property bool _ready: _sink && _sink.ready
+  readonly property bool muted: _ready && _sink.audio.muted
+
+  property real volume: _ready ? _audio.volume : 0
 
   property real _pendingVolume: -1
 
@@ -40,6 +42,10 @@ QtObject {
   }
 
   property Process _muteProc: Process {}
+  property PwObjectTracker _tracker: PwObjectTracker {
+    objects: [root._sink]
+  }
+
 
   function setVolume(v) {
     if (_audio == null) return
@@ -58,5 +64,20 @@ QtObject {
     _muteProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]
     _muteProc.running = true
   }
+
+  on_SinkChanged: {
+    if (_ready) volume = _audio.volume
+  }
+
+  on_ReadyChanged: {
+    if (_ready) volume = _audio.volume
+  }
+
+  // keep in sync with external volume changes once ready
+  property Connections _audioConnections: Connections {
+    target: _ready ? _audio : null
+    function onVolumeChanged() { root.volume = _audio.volume }
+  }
+
 }
 

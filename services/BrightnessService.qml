@@ -38,7 +38,17 @@ QtObject {
   // 3. Reusable process to set brightness without freezing the UI
   property Process _setProc: Process {}
 
-  // 4. The function your slider will call
+  // 4. Poll for external brightness changes (e.g. from waybar, keyboard keys)
+  property Timer _pollTimer: Timer {
+    interval: 1000
+    repeat: true
+    running: root.maxValue > 0
+    onTriggered: {
+      if (!_getProc.running) _getProc.running = true
+    }
+  }
+
+  // 5. The function your slider will call
   function setBrightness(percent) {
     let p = Math.max(1, Math.round(percent * 100))
     _setProc.command = ["brightnessctl", "set", p + "%"]

@@ -60,7 +60,7 @@ PanelWindow {
     id: slidingContainer
     width: parent.width
     height: parent.height
-    
+
     x: {
       if (root._isHovered) return 0;
       if (root.edge === Qt.RightEdge) return root.panelThickness;
@@ -82,7 +82,7 @@ PanelWindow {
         easing.type: Easing.OutCubic
       }
     }
-    
+
     Behavior on y {
       NumberAnimation {
         duration: xAnim.duration
@@ -95,7 +95,7 @@ PanelWindow {
       width: root.panelThickness
       height: root.panelLength
       anchors.centerIn: parent
-      
+
       rotation: {
         if (root.edge === Qt.TopEdge) return -90
         if (root.edge === Qt.BottomEdge) return 90

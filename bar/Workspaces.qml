@@ -26,6 +26,13 @@ RowLayout {
       radius: 12
       color: wsActive ? "#cba6f7" : "#313244"
 
+      // Text {
+      //   text: wsActive ? "" : modelData
+      //   color: "white"
+      //   font.pixelSize: 10
+      //   anchors.centerIn: parent
+      // }
+
       Behavior on Layout.preferredWidth {
         NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }
       }

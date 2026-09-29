@@ -1,10 +1,16 @@
 import QtQuick
 import Quickshell.Io
 
-Item {
+Rectangle {
   id: root
-  implicitWidth: label.implicitWidth
-  implicitHeight: 36
+  property int hPadding: 8
+  property int vPadding: 2
+
+  implicitWidth: label.implicitWidth + hPadding * 2
+  implicitHeight: 28
+
+  radius: root.height / 2
+  color: "#313244"
 
   property real usage: 0
   property int temp: 0
@@ -48,9 +54,9 @@ Item {
   Text {
     id: label
     anchors.centerIn: parent
+    anchors.rightMargin: hPadding
     color: "white"
     font.pixelSize: 12
-    // swap  for your nerd font glyph
-    text: ` ${root.usage}%  ${root.temp}°C`
+    text: `${root.usage}%   | ${root.temp}°C `
   }
 }

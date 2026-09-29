@@ -56,10 +56,10 @@ PanelWindow {
       anchors.verticalCenter: parent.verticalCenter
       spacing: 12
 
-      Right.Tray {}
+      Right.Tray { panelWindow: bar }
+      Right.VolumeWidget {}
       Right.CpuWidget {}
       Right.WifiWidget {}
-      Right.VolumeWidget {}
       Right.BatteryWidget {}
     }
   }
