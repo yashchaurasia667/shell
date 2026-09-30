@@ -2,30 +2,17 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import Quickshell.Services.Notifications
 
 import "../components"
+import "../services/"
 
 Item {
   id: root
 
-  // ── Notification daemon ───────────────────────────────────────────────────
-  // Instantiating NotificationServer makes Quickshell the system notification daemon.
-  // All apps that use libnotify / D-Bus notifications will send here.
-  property bool dnd: false
+  // DND is now controlled via NotificationService
+  property bool dnd: NotificationService.dnd
 
-  NotificationServer {
-    id: server
-    keepOnReload: true
-    bodyMarkupSupported: false
-    bodySupported: true
-    persistenceSupported: true
-    onNotification: notif => {
-      if (root.dnd) notif.dismiss()
-    }
-  }
-
-  property int count: server.trackedNotifications.count
+  property int count: NotificationService.count
 
   // ── Layout ────────────────────────────────────────────────────────────────
   ColumnLayout {
@@ -75,12 +62,7 @@ Item {
           anchors.fill: parent
           anchors.margins: -4
           cursorShape: Qt.PointingHandCursor
-          onClicked: {
-            // Dismiss from end to start to avoid index shifting issues
-            const items = server.trackedNotifications
-            for (let i = items.count - 1; i >= 0; i--)
-              items.get(i).dismiss()
-          }
+          onClicked: NotificationService.clearAll()
         }
       }
     }
@@ -120,7 +102,6 @@ Item {
       visible: root.count > 0
       clip: true
 
-      // Hide scrollbar — swipe to scroll feels more native
       ScrollBar.vertical.policy: ScrollBar.AsNeeded
       ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
@@ -130,17 +111,13 @@ Item {
         spacing: 8
         clip: true
 
-        // Newest first: reverse the model
-        model: server.trackedNotifications
+        model: NotificationService.trackedNotifications
         verticalLayoutDirection: ListView.BottomToTop
 
-        // Tiles
         delegate: NotificationTile {
-          required property var modelData
           width: listView.width
         }
 
-        // Animate items appearing / disappearing
         add: Transition {
           NumberAnimation {
             properties: "opacity,x"

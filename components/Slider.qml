@@ -2,6 +2,8 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
 
+import ".."
+
 Item {
   id: root
 
@@ -10,12 +12,12 @@ Item {
   property int orientation: Qt.Vertical
 
   property string icon: "󰕾"
-  property string iconFont: "Symbols Nerd Font"
+  property string iconFont: "Maple Mono NF CN"
 
-  property color trackColor: "#F8EDED"
-  property color fillColor: "#6B564C" 
-  property color handleColor: "#292624"
-  property color iconColor: "#FFFFFF"
+  property color trackColor: Theme.c_on_background
+  property color fillColor: Theme.c_primary
+  property color handleColor: Theme.c_on_secondary
+  property color iconColor: Theme.c_secondary
 
   property int trackThickness: 34
   property int sliderLength: 150

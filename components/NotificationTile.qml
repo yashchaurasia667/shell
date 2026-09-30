@@ -4,13 +4,29 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.Notifications
 
+import "../"
+
 Item {
   id: root
-  required property Notification modelData
+  required property var modelData
 
   // Record the time this tile was first shown
   property var receivedAt: new Date()
   property bool expanded: false
+
+  property real cardRadius: 12
+  property color cardColor: "#313244"
+
+  // If provided, called instead of root.modelData.dismiss()
+  property var onDismissCustom: null
+
+  function triggerDismiss() {
+    if (onDismissCustom) {
+      onDismissCustom()
+    } else if (modelData) {
+      modelData.dismiss()
+    }
+  }
 
   implicitHeight: card.height
   implicitWidth: card.width
@@ -35,6 +51,7 @@ Item {
 
   // --- Urgency accent color ---
   property color accentColor: {
+    if (!root.modelData) return "#89b4fa"
     switch (root.modelData.urgency) {
       case NotificationUrgency.Critical: return "#f38ba8"  // red
       case NotificationUrgency.Low:      return "#6c7086"  // muted
@@ -49,8 +66,8 @@ Item {
     implicitHeight: innerCol.implicitHeight + 20
     height: implicitHeight
 
-    radius: 12
-    color: "#313244"
+    radius: root.cardRadius
+    color: root.cardColor
 
     // Left urgency accent stripe
     Rectangle {
@@ -100,7 +117,7 @@ Item {
     Timer {
       id: dismissTimer
       interval: 300
-      onTriggered: root.modelData.dismiss()
+      onTriggered: root.triggerDismiss()
     }
 
     // Click anywhere to expand/collapse body
@@ -132,10 +149,13 @@ Item {
             id: iconImg
             anchors.fill: parent
             source: {
-              if (root.modelData.image !== "")
-                return root.modelData.image
-              const p = Quickshell.iconPath(root.modelData.appIcon, false)
-              return p !== "" ? p : ""
+              if (!root.modelData) return ""
+              if (root.modelData.image) return root.modelData.image
+              if (root.modelData.appIcon) {
+                const p = Quickshell.iconPath(root.modelData.appIcon)
+                return p || ""
+              }
+              return ""
             }
             fillMode: Image.PreserveAspectFit
             visible: status === Image.Ready
@@ -150,7 +170,7 @@ Item {
 
             Text {
               anchors.centerIn: parent
-              text: root.modelData.appName.charAt(0).toUpperCase()
+              text: (root.modelData && root.modelData.appName ? root.modelData.appName.charAt(0) : "?").toUpperCase()
               color: "white"
               font.pixelSize: 9
               font.bold: true
@@ -160,7 +180,7 @@ Item {
 
         // App name
         Text {
-          text: root.modelData.appName
+          text: (root.modelData && root.modelData.appName) || "Notification"
           color: "#a6adc8"
           font.pixelSize: 11
           elide: Text.ElideRight
@@ -184,14 +204,14 @@ Item {
           MouseArea {
             anchors.fill: parent
             anchors.margins: -6   // bigger hit target
-            onClicked: root.modelData.dismiss()
+            onClicked: root.triggerDismiss()
           }
         }
       }
 
       // Summary
       Text {
-        text: root.modelData.summary
+        text: (root.modelData && root.modelData.summary) || ""
         color: "#cdd6f4"
         font.pixelSize: 13
         font.bold: true
@@ -204,8 +224,8 @@ Item {
       // Body (collapsible)
       Text {
         id: bodyText
-        visible: root.modelData.body !== ""
-        text: root.modelData.body
+        visible: !!(root.modelData && root.modelData.body)
+        text: (root.modelData && root.modelData.body) || ""
         textFormat: Text.PlainText
         color: "#a6adc8"
         font.pixelSize: 12

@@ -7,12 +7,16 @@ import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 
-import "./right" as Right
+import "../"
 import "../components" 
+import "./right" as Right
 
 PanelWindow {
   id: bar
   property var modelData
+
+  property int barHeight: 35
+  property int shadowSize: 5
 
   anchors {
     top: true
@@ -20,47 +24,78 @@ PanelWindow {
     right: true
   }
 
-  implicitHeight: 35
-  color: "black"
-  exclusiveZone: implicitHeight
+  color: "transparent"
+  implicitHeight: barHeight + shadowSize
+  exclusiveZone: barHeight
 
-  Item {
-    anchors.fill: parent
-    anchors.leftMargin: 14
-    anchors.rightMargin: 14
+  mask: Region {
+    item: barBackground
+  }
 
-    Workspaces {
-      anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
-      spacing: 8
-    }
+  Rectangle {
+    id: barBackground
+
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+
+    height: bar.barHeight
+    color: Theme.c_background
 
     Item {
-      id: clockWrapper
-      width: clock.width
-      height: parent.height
-      anchors.centerIn: parent
+      anchors.fill: parent
+      anchors.leftMargin: 14
+      anchors.rightMargin: 14
 
-      Clock {
-        id: clock
-        anchors.centerIn: parent
+      Workspaces {
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 8
       }
 
-      HoverHandler {
-        id: clockHoverHandler
+      Item {
+        id: clockWrapper
+        width: clock.width
+        height: parent.height
+        anchors.centerIn: parent
+
+        Clock {
+          id: clock
+          anchors.centerIn: parent
+        }
+
+        HoverHandler {
+          id: clockHoverHandler
+        }
+      }
+
+      RowLayout {
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 12
+
+        Right.Tray { panelWindow: bar }
+        Right.VolumeWidget {}
+        Right.CpuWidget {}
+        Right.WifiWidget {}
+        Right.BatteryWidget {}
       }
     }
+  }
 
-    RowLayout {
-      anchors.right: parent.right
-      anchors.verticalCenter: parent.verticalCenter
-      spacing: 12
-
-      Right.Tray { panelWindow: bar }
-      Right.VolumeWidget {}
-      Right.CpuWidget {}
-      Right.WifiWidget {}
-      Right.BatteryWidget {}
+  // Downward shadow towards center of screen
+  Rectangle {
+    id: barShadow
+    anchors.top: barBackground.bottom
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: bar.shadowSize
+    gradient: Gradient {
+      orientation: Gradient.Vertical
+      GradientStop { position: 0.0; color: Theme.c_shadow }
+      // GradientStop { position: 0.25; color: Qt.rgba(0, 0, 0, 0.22) }
+      // GradientStop { position: 0.60; color: Qt.rgba(0, 0, 0, 0.07) }
+      GradientStop { position: 1.0; color: "transparent" }
     }
   }
 

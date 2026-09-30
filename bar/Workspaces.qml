@@ -3,6 +3,8 @@ import Quickshell.Io
 import QtQuick.Layouts
 import QtQuick
 
+import ".."
+
 RowLayout {
   spacing: 8
 
@@ -24,7 +26,7 @@ RowLayout {
       Layout.alignment: Qt.AlignVCenter
 
       radius: 12
-      color: wsActive ? "#cba6f7" : "#313244"
+      color: wsActive ? Theme.c_primary : Theme.c_secondary_container
 
       // Text {
       //   text: wsActive ? "" : modelData
@@ -60,7 +62,7 @@ RowLayout {
       Layout.alignment: Qt.AlignVCenter
 
       radius: 4 
-      color: wsActive ? "#f38ba8" : "#313244"
+      color: wsActive ? Theme.c_tertiary : Theme.c_secondary_container
 
       Behavior on Layout.preferredWidth {
         NumberAnimation { duration: 150; easing.type: Easing.InOutQuad }

@@ -1,4 +1,5 @@
 //@ pragma UseQApplication
+
 // shell.qml
 import QtQuick
 import QtQuick.Layouts
@@ -26,16 +27,58 @@ ShellRoot {
   }
   // left
   Frame {
-    // id: leftFrame
     anchorRight: false
   }
 
-  // Left panel — triggered by left frame hover OR bottom-right hot corner
+  // right
+  Frame {
+    id: rightFrame
+    anchorLeft: false
+    thickness: 5
+  }
+  SidePanel {
+    id: volumeControl
+    triggerHovered: rightFrame.hovered
+    edge: Qt.RightEdge
+
+    curveDepth: 15
+    cornerRadius: 25
+
+    ColumnLayout {
+      anchors.fill: parent
+      spacing: 12
+
+      Item {Layout.fillHeight: true}
+      Slider { 
+        icon: AudioService.muted ? "󰖁" : "󰕾" 
+        Layout.alignment: Qt.AlignHCenter
+        value: AudioService.volume
+        onMoved: position => {
+          AudioService.setVolume(position)
+        }
+      }
+
+      Slider { 
+        icon: "󰃝" 
+        Layout.alignment: Qt.AlignHCenter
+        value: BrightnessService.value
+        onMoved: position => {
+          BrightnessService.setBrightness(position)
+        }
+      }
+      Item {Layout.fillHeight: true}
+    }
+  }
+
+  // right panel
   RightPanel {
     triggerHovered: hotCorner.hovered
   }
 
-  // Hot corner - bottom right
+  // top-right popup notifications
+  NotificationPopup {}
+
+  // hot corner - bottom right
   PanelWindow {
     id: hotCorner
     anchors.bottom: true
@@ -50,9 +93,6 @@ ShellRoot {
 
     color: "transparent"
 
-    // Poll hyprctl monitors -j to reliably detect special workspace visibility.
-    // Hyprland.focusedMonitor.activeWorkspace does NOT update for special workspaces
-    // (they overlay the regular workspace without changing the activeWorkspace property).
     property bool onSpecialWorkspace: false
 
     function refreshWorkspaceState() {
@@ -95,46 +135,6 @@ ShellRoot {
     property bool hovered: hotCornerHandler.hovered && !activeFullscreen
 
     HoverHandler { id: hotCornerHandler }
-  }
-
-  // right
-  Frame {
-    id: rightFrame
-    anchorLeft: false
-    thickness: 5
-  }
-  SidePanel {
-    id: volumeControl
-    triggerHovered: rightFrame.hovered
-    edge: Qt.RightEdge
-
-    curveDepth: 15
-    cornerRadius: 25
-
-    ColumnLayout {
-      anchors.fill: parent
-      spacing: 12
-
-      Item {Layout.fillHeight: true}
-      Slider { 
-        icon: AudioService.muted ? "󰖁" : "󰕾" 
-        Layout.alignment: Qt.AlignHCenter
-        value: AudioService.volume
-        onMoved: position => {
-          AudioService.setVolume(position)
-        }
-      }
-
-      Slider { 
-        icon: "󰃝" 
-        Layout.alignment: Qt.AlignHCenter
-        value: BrightnessService.value
-        onMoved: position => {
-          BrightnessService.setBrightness(position)
-        }
-      }
-      Item {Layout.fillHeight: true}
-    }
   }
 
   // concave corners

@@ -72,10 +72,10 @@ Item {
       // Do Not Disturb tile
       ToggleTile {
         Layout.fillWidth: true
-        icon: root.dnd ? "󰂛" : "󰂚"
+        icon: NotificationService.dnd ? "󰂛" : "󰂚"
         label: "Do Not Disturb"
-        active: root.dnd
-        onToggled: root.dnd = !root.dnd
+        active: NotificationService.dnd
+        onToggled: NotificationService.dnd = !NotificationService.dnd
       }
     }
 
