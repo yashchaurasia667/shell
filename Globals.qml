@@ -1,3 +1,4 @@
+// Globals.qml
 pragma Singleton
 
 import QtQuick
