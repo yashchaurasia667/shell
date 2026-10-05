@@ -2,11 +2,12 @@
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Wayland
+
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import ".."
+import qs.common
 
 PanelWindow {
   id: root

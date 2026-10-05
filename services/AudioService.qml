@@ -1,83 +1,49 @@
-// AudioService.qml
 pragma Singleton
-import QtQuick
-import Quickshell.Io
+
+import Quickshell
 import Quickshell.Services.Pipewire
 
-QtObject {
+Singleton {
   id: root
 
-  property var _sink: Pipewire.defaultAudioSink
-  property var _audio: _sink != null ? _sink.audio : null
+  readonly property PwNode sink: Pipewire.defaultAudioSink
+  readonly property PwNode source: Pipewire.defaultAudioSource
 
-  readonly property bool _ready: _sink && _sink.ready
-  readonly property bool muted: _ready && _sink.audio.muted
+  readonly property bool ready: sink?.ready ?? false
+  readonly property bool muted: sink?.audio?.muted ?? false
+  readonly property real volume: sink?.audio?.volume ?? 0
 
-  property real volume: _ready ? _audio.volume : 0
+  readonly property bool sourceMuted: source?.audio?.muted ?? false
+  readonly property real sourceVolume: source?.audio?.volume ?? 0
 
-  property real _pendingVolume: -1
-
-  property Timer _debounce: Timer {
-    interval: 16
-    repeat: false
-    onTriggered: {
-      if (root._pendingVolume < 0) return
-
-      _volProc.command = [
-        "wpctl", "set-volume",
-        "@DEFAULT_AUDIO_SINK@",
-        root._pendingVolume.toFixed(2)
-      ]
-      _volProc.running = true
-      root._pendingVolume = -1
-    }
+  function setVolume(vol: real): void {
+    if (!sink?.ready || !sink?.audio) return
+    sink.audio.volume = Math.max(0, Math.min(1, vol))
   }
 
-  property Process _volProc: Process {
-    onExited: (code, status) => {
-      if (root._pendingVolume >= 0) {
-        root._debounce.restart()
-      }
-    }
+  function setMuted(m: bool): void {
+    if (!sink?.ready || !sink?.audio) return
+    sink.audio.muted = m
   }
 
-  property Process _muteProc: Process {}
-  property PwObjectTracker _tracker: PwObjectTracker {
-    objects: [root._sink]
+  function toggleMute(): void {
+    setMuted(!muted)
   }
 
-
-  function setVolume(v) {
-    if (_audio == null) return
-
-    _pendingVolume = Math.max(0.0, Math.min(1.0, v))
-    _debounce.restart()
-
-    if (muted && v > 0) {
-      _muteProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "0"]
-      _muteProc.running = true
-    }
+  function nudgeVolume(delta: real): void {
+    setVolume(volume + delta)
   }
 
-  function toggleMute() {
-    if (_muteProc.running) _muteProc.running = false
-    _muteProc.command = ["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"]
-    _muteProc.running = true
+  function setSourceMuted(m: bool): void {
+    if (!source?.ready || !source?.audio) return
+    source.audio.muted = m
   }
 
-  on_SinkChanged: {
-    if (_ready) volume = _audio.volume
+  function toggleSourceMute(): void {
+    setSourceMuted(!sourceMuted)
   }
 
-  on_ReadyChanged: {
-    if (_ready) volume = _audio.volume
+  PwObjectTracker {
+    objects: [root.sink, root.source]
   }
-
-  // keep in sync with external volume changes once ready
-  property Connections _audioConnections: Connections {
-    target: _ready ? _audio : null
-    function onVolumeChanged() { root.volume = _audio.volume }
-  }
-
 }
-
