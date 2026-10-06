@@ -10,8 +10,8 @@ import qs.common
 PanelWindow {
   id: frame
 
-  property real thickness: 4        // border stroke thickness
-  property real radius: 18          // corner radius
+  property real thickness: Global.border        // border stroke thickness
+  property real radius: Global.borderRadius         // corner radius
   property color borderColor: Theme.m3surface
 
   anchors {
@@ -116,26 +116,15 @@ PanelWindow {
     }
   }
 
-  // RowLayout {
-  //   anchors.top: parent.top
-  //   anchors.left: parent.left
-  //   anchors.right: parent.right
+  // hot corner
+  // Rectangle {
+  //   width: 20
+  //   height: 20
+  //   color: "white"
   //
-  //   anchors.leftMargin: Global.pad
-  //   anchors.rightMargin: Global.pad
-  //
-  //   spacing: 12
-  //
-  //   Workspaces {}
-  //   Item { Layout.fillWidth: true }
-  //   Clock {}
-  //   Item { Layout.fillWidth: true }
-  //   RowLayout {
-  //     spacing: 12
-  //     SystemTray {}
-  //     CpuInfo {}
-  //     Volume {}
-  //     Battery {}
+  //   anchors {
+  //     bottom: parent.bottom
+  //     right: parent.right
   //   }
   // }
 }

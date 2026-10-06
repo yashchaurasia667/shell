@@ -2,7 +2,8 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-  readonly property string font: "Maple Mono NF CN"
+  // readonly property string font: "Maple Mono NF CN"
+  readonly property string font: "JetBrainsMono Nerd Font"
   readonly property string iconFont: "Material Symbols Rounded"
 
   readonly property int fontSize: 14

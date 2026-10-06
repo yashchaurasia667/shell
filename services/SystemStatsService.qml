@@ -39,6 +39,7 @@ Singleton {
     onTriggered: {
       statFile.reload()
       meminfoFile.reload()
+      cpuTempFile.reload()
       gpuProcess.running = true
     }
   }

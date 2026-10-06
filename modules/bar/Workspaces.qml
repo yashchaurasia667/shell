@@ -50,6 +50,7 @@ Item {
       }
 
       delegate: Rectangle {
+        id: wsTile
         required property int modelData
         property bool focused: focusedWs && focusedWs.id === modelData && !anySpecialActive
 
@@ -57,14 +58,19 @@ Item {
         implicitWidth: Global.pillHeight - 15
 
         color: focused ? Theme.m3primary : Theme.m3surface_variant
-        radius: 6
+        radius: focused ? wsTile.height/2 :  6
 
-        Behavior on color { ColorAnimation { duration: 150 } }
+        // Behavior on color { ColorAnimation { duration: 150 } }
+        Behavior on radius {
+          NumberAnimation {
+            duration: 150
+          }
+        }
 
         Text {
           anchors.centerIn: parent
           text: modelData
-          color: Theme.m3on_surface
+          color: focused ? Theme.m3surface : Theme.m3on_surface
           font.family: Global.font
           font.pixelSize: Global.fontSize
         }
@@ -74,6 +80,7 @@ Item {
           cursorShape: Qt.PointingHandCursor
           onClicked: Hyprland.dispatch("hl.dsp.focus({ workspace = " + modelData + " })")
         }
+
       }
     }
 
@@ -98,13 +105,13 @@ Item {
         color: modelData.active ? Theme.m3tertiary : Theme.m3surface_variant
         radius: 6
 
-        Behavior on color { ColorAnimation { duration: 150 } }
+        // Behavior on color { ColorAnimation { duration: 150 } }
 
         Text {
           id: label
           anchors.centerIn: parent
           text: modelData.label
-          color: Theme.m3on_surface
+          color: modelData.active ? Theme.m3surface : Theme.m3on_surface
           font.family: Global.font
           font.pixelSize: Global.fontSize
         }

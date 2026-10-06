@@ -130,6 +130,7 @@ PanelWindow {
 
           RowLayout {
             anchors.fill: parent
+            anchors.leftMargin: Global.pad/2
             
             CheckBox {
               checked: isCompleted
