@@ -1,42 +1,71 @@
-// services/NotificationService.qml
 pragma Singleton
+
 import QtQuick
+import Quickshell
 import Quickshell.Services.Notifications
 
-QtObject {
+Singleton {
   id: root
 
-  property bool dnd: false
+  readonly property alias notifications: server.trackedNotifications
+  readonly property int count: notifications.count === undefined ? 0 : notifications.count
+  readonly property bool hasNotifications: count > 0
 
-  // The notification daemon — only one can own the D-Bus name system-wide
-  property NotificationServer _server: NotificationServer {
-    keepOnReload: true
-    bodyMarkupSupported: false
+  property bool doNotDisturb: false
+  property int defaultTimeout: 5000
+  property int exitAnimDuration: 200
+
+  signal notified(notification: Notification)
+  signal expiring(notification: Notification)
+
+  function dismiss(notification: Notification): void {
+    notification.dismiss()
+  }
+
+  function dismissAll(): void {
+    for (const n of [...notifications.values]) n.dismiss()
+  }
+
+  NotificationServer {
+    id: server
+
     bodySupported: true
-    persistenceSupported: true
+    bodyMarkupSupported: true
+    bodyHyperlinksSupported: true
     imageSupported: true
     actionsSupported: true
-    onNotification: notif => {
-      if (root.dnd) {
-        notif.dismiss()
-      } else {
-        notif.tracked = true
-        root.notificationReceived(notif)
+    actionIconsSupported: true
+    persistenceSupported: true
+    keepOnReload: false
+
+    onNotification: (notification) => {
+      notification.tracked = true
+      root.notified(notification)
+
+      if (!root.doNotDisturb && notification.expireTimeout !== 0) {
+        const timeout = notification.expireTimeout > 0
+          ? notification.expireTimeout
+          : root.defaultTimeout
+
+        expireTimer.createObject(root, {
+          notification: notification,
+          interval: timeout
+        })
       }
     }
   }
 
-  // Expose the tracked notifications model for panels and popups
-  readonly property var trackedNotifications: _server.trackedNotifications
-  readonly property int count: _server.trackedNotifications.values.length
-
-  // Signal emitted when a new notification arrives (for popups to react)
-  signal notificationReceived(var notification)
-
-  // Dismiss all tracked notifications
-  function clearAll() {
-    const items = _server.trackedNotifications.values
-    for (let i = items.length - 1; i >= 0; i--)
-      items[i].dismiss()
+  Component {
+    id: expireTimer
+    Timer {
+      id: timer
+      required property Notification notification
+      running: true
+      repeat: false
+      onTriggered: {
+        timer.notification.expire()
+        timer.destroy()
+      }
+    }
   }
 }
