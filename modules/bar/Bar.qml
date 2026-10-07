@@ -13,6 +13,8 @@ PanelWindow {
   property real thickness: Global.border        // border stroke thickness
   property real radius: Global.borderRadius         // corner radius
   property color borderColor: Theme.m3surface
+  readonly property bool controlCenterVisible: hotCornerArea.containsMouse
+  // signal toggleNotificationCenter()
 
   anchors {
     top: true
@@ -27,6 +29,8 @@ PanelWindow {
   exclusionMode: ExclusionMode.Ignore   // purely visual, reserves nothing
   aboveWindows: false
   color: "transparent"
+
+  WlrLayershell.layer: WlrLayer.Top
   WlrLayershell.namespace: "frame"
 
   // click-through: nothing in this window should intercept input
@@ -43,6 +47,14 @@ PanelWindow {
       width: frame.width - outline.t * 2
       height: frame.height - outline.t - Global.reserveTop
       intersection: Intersection.Subtract
+    }
+
+    // hot corner region
+    Region {
+      x: frame.width - 20
+      y: frame.height - 20
+      width: 20
+      height: 20
     }
   }
 
@@ -117,14 +129,21 @@ PanelWindow {
   }
 
   // hot corner
-  // Rectangle {
-  //   width: 20
-  //   height: 20
-  //   color: "white"
-  //
-  //   anchors {
-  //     bottom: parent.bottom
-  //     right: parent.right
-  //   }
-  // }
+  Rectangle {
+    width: 20
+    height: 20
+    color: "transparent"
+
+    anchors {
+      bottom: parent.bottom
+      right: parent.right
+    }
+
+    MouseArea {
+      id: hotCornerArea
+
+      anchors.fill: parent
+      hoverEnabled: true
+    }
+  }
 }

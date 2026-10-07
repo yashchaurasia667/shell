@@ -6,6 +6,7 @@ import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtCore 
 
 import qs.common
 
@@ -27,6 +28,16 @@ PanelWindow {
   BackgroundEffect.blurRegion: Region {
     item: clippingRect
   }
+  
+  // Persistent Storage configuration
+  Settings {
+    id: settings
+    category: "TodoList"
+    // fileName: StandardPaths.writableLocation(StandardPaths.ConfigLocation) + "/quickshell/todo-list.conf"
+    property string savedTasks: "[]"
+  }
+
+  Component.onCompleted: loadTasks()
 
   ClippingRectangle {
     id: clippingRect
@@ -36,7 +47,6 @@ PanelWindow {
     anchors.bottomMargin: root.panelMargins
 
     radius: 12
-    // color: Theme.m3surface
     color: Qt.rgba(Theme.m3surface.r, Theme.m3surface.g, Theme.m3surface.b, 0.75)
     border.color: Theme.m3inverse_on_surface
     border.width: 1
@@ -83,7 +93,7 @@ PanelWindow {
             radius: 6
           }
 
-          onAccepted: addTask()
+          onAccepted: root.addTask()
         }
         Button {
           text: "+"
@@ -102,7 +112,7 @@ PanelWindow {
             font.bold: true
           }
 
-          onClicked: addTask()
+          onClicked: root.addTask()
         }
       }
 
@@ -136,6 +146,7 @@ PanelWindow {
               checked: isCompleted
               onToggled: {
                 todoModel.setProperty(index, "isCompleted", checked)
+                root.saveTasks() // Save on toggle
               }
             }
 
@@ -164,6 +175,7 @@ PanelWindow {
 
               onClicked: {
                 todoModel.remove(index)
+                root.saveTasks() // Save on delete
               }
             }
           }
@@ -172,7 +184,7 @@ PanelWindow {
     }
   }
 
-  // Moved inside PanelWindow scope
+  // Logic Functions
   function addTask() {
     if (taskInput.text.trim() !== "") {
       todoModel.append({
@@ -180,6 +192,31 @@ PanelWindow {
         "isCompleted": false
       })
       taskInput.text = ""
+      saveTasks() // Save on add
+    }
+  }
+
+  function saveTasks() {
+    let tasks = []
+    for (let i = 0; i < todoModel.count; i++) {
+      let item = todoModel.get(i)
+      tasks.push({
+        taskText: item.taskText,
+        isCompleted: item.isCompleted
+      })
+    }
+    settings.savedTasks = JSON.stringify(tasks)
+  }
+
+  function loadTasks() {
+    todoModel.clear()
+    try {
+      let tasks = JSON.parse(settings.savedTasks)
+      for (let i = 0; i < tasks.length; i++) {
+        todoModel.append(tasks[i])
+      }
+    } catch (e) {
+      console.log("Failed to parse saved tasks:", e)
     }
   }
 }
