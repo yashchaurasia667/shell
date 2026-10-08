@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 
 import qs.common
+import "../drawers/"
 
 PanelWindow {
   id: frame
@@ -13,8 +14,9 @@ PanelWindow {
   property real thickness: Global.border        // border stroke thickness
   property real radius: Global.borderRadius         // corner radius
   property color borderColor: Theme.m3surface
+  property bool clockHovered: clockHandler.hovered
+
   readonly property bool controlCenterVisible: hotCornerArea.containsMouse
-  // signal toggleNotificationCenter()
 
   anchors {
     top: true
@@ -26,7 +28,7 @@ PanelWindow {
     // marginRight: Global.pad
   }
 
-  exclusionMode: ExclusionMode.Ignore   // purely visual, reserves nothing
+  exclusionMode: ExclusionMode.Ignore
   aboveWindows: false
   color: "transparent"
 
@@ -102,7 +104,6 @@ PanelWindow {
     anchors.rightMargin: Global.pad
 
     height: Global.pillHeight
-    // height: Math.max(workspaces.implicitHeight, clock.implicitHeight, rightGroup.implicitHeight)
 
     Workspaces {
       id: workspaces
@@ -113,6 +114,10 @@ PanelWindow {
     Clock {
       id: clock
       anchors.centerIn: parent
+
+      HoverHandler {
+        id: clockHandler
+      }
     }
 
     RowLayout {
@@ -126,6 +131,11 @@ PanelWindow {
       Volume {}
       Battery {}
     }
+  }
+
+  TopDrawer { 
+    screen: root.modelData
+    drawerHovered: clockHovered
   }
 
   // hot corner

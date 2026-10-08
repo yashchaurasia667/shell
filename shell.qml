@@ -12,5 +12,6 @@ ShellRoot {
     model: Quickshell.screens
     PerScreen {}
   }
-  // TodoList {}
+  TodoList {}
+  AppLauncher {}
 }
